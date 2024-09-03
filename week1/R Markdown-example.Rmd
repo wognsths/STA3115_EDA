@@ -1,0 +1,40 @@
+---
+title: "R Markdown Example"
+author: "Your name"
+date: "September 5"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Practice R Markdown 
+
+```{r}
+a <- 4 #both R code and outputs displayed
+a + 3
+```
+
+
+```{r, include=FALSE}
+b <- 4 #not displayed
+b + 3
+```
+
+
+```{r, echo=FALSE}
+d <- 4 #only the output displayed
+dd <- d * 0.222
+dd
+```
+
+If we want to insert **R** values in your comments, we can use *dd* is equal to `r round(dd, 2)`.
+
+```{r, eval=FALSE}
+f <- 4 #only R code shown; outputs not displayed
+f + 3
+```
+
+
+
+
+
