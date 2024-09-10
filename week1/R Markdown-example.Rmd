@@ -7,19 +7,17 @@ output:
   html_document: default
 ---
 
-## Practice R Markdown 
+## Practice R Markdown
 
 ```{r}
 a <- 4 #both R code and outputs displayed
 a + 3
 ```
 
-
 ```{r, include=FALSE}
 b <- 4 #not displayed
 b + 3
 ```
-
 
 ```{r, echo=FALSE}
 d <- 4 #only the output displayed
@@ -33,8 +31,4 @@ If we want to insert **R** values in your comments, we can use *dd* is equal to 
 f <- 4 #only R code shown; outputs not displayed
 f + 3
 ```
-
-
-
-
-
+`r sapply(1:b, function(x) {print(x)})`
