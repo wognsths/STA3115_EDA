@@ -51,6 +51,7 @@ ti$b
 (df_test = data.frame(t = c("a b", "a c", "a c d")))
 df_test |> separate(t, into = c("position 1", "position 2"))
 df_test |> separate(t, into = c("position 1", "position 2", "position 3"))
+## option in separating , / _ / ...etc all different ways
 
 ## ----mutate--------------------------------------------------------------
 (df_test = data.frame(a = sample(10), b = sample(10, replace = TRUE)))
@@ -59,4 +60,6 @@ df_test |> mutate(sum = a + b,
 
 ## ----arrange-------------------------------------------------------------
 (df_test = data.frame(a = sample(10), b = sample(10, replace = TRUE)))
-df_test |> arrange(a)
+df_test |> arrange(desc(a))
+
+df_test |> filter(a > 4)
