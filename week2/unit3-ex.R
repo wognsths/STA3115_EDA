@@ -22,7 +22,7 @@ ggplot(tenor1, aes(x = height)) + geom_histogram(bins = 10)
 ggplot(tenor1, aes(x = height)) + geom_density()
 #density with rug
 ggplot(tenor1, aes(x = height)) +
-  geom_density(adjust = .5) +
+  geom_density(adjust = .3) +
   geom_rug(aes(y = 0), sides = "b", 
            position = position_jitter(height = 0))
 
@@ -68,6 +68,7 @@ ggplot(bass2, aes(x = f.value, y = height)) +
 
 ## ----q-q-plot-----------------------------------------------------------
 #using base R function to generate a dataframe
+
 qq.df = as.data.frame(qqplot(tenor1$height, bass2$height,
                              plot.it = FALSE))
 ggplot(qq.df, aes(x = x, y = y)) +
