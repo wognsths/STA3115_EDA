@@ -6,30 +6,82 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-library(readr);library(tidyverse)
-billboard <- read_csv("HW1/billboard.csv")
+library(readr);library(tidyverse);library(ggplot2)
+billboard <- read_csv("billboard.csv")
 billboard
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Problem 1: Splitting the "time" variable
 
 ```{r}
-billboard %>% separate(time, into = c("minutes", "seconds"), sep = ":") %>% .[, c("year", "artist.inverted", "track", "minutes", "seconds")]
+billboard %>% 
+  separate(time, into = c("minutes", "seconds", "mm"), sep = ":") %>% 
+  .[, c("year", "artist.inverted", "track", "minutes", "seconds")] -> billboard.1
+
+print(head(billboard.1, 10))
 ```
+## Problem 2: Creating a new time variable and histogram
+
 ```{r}
-as.numeric(billboard$minutes)
-billboard |> mutate(time_in_min = numeric(minutes) + numeric(seconds) / 60)
+billboard.1 |> 
+  mutate(time_in_min = as.numeric(minutes) + as.numeric(seconds) / 60) -> timevar
+
+t <- timevar$time_in_min
+
+description <- data.frame(
+  Statistic = c("Mean", "Standard Deviation", "Median", "IQR", "Min", "Max"),
+  Value = c(mean(t), sd(t), median(t), IQR(t), range(t))
+)
+
+histplot <- ggplot(timevar, aes(x = time_in_min)) +
+  geom_histogram() +
+  labs(x = "Length of the song in minutes",
+       y = "Frequency")
+
 ```
-## Including Plots
+## Problem 3: Summary statistics by weeks on chart
+
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r, echo=FALSE}
+billboard %>%
+  separate(time, into = c("minutes", "seconds", "mm"), sep = ":") %>%
+  select(year, artist.inverted, minutes, seconds, x16th.week) %>%
+  mutate(time_in_min = as.numeric(minutes) + as.numeric(seconds) / 60)-> billboard.2
+
+a <- billboard.2 %>% .[is.na(.[, 'x16th.week']),] %>% pull(time_in_min) # below 15
+b <- billboard.2 %>% .[!is.na(.[, 'x16th.week']),] %>% pull(time_in_min) # more than 15
+
+compare.dt <- tibble(
+  Statistic = c("Mean", "Standard Deviation", "Median", "IQR"),
+  `Below 15 weeks` = c(mean(a), sd(a), median(a), IQR(a)),
+  `More than 15 weeks` = c(mean(b), sd(b), median(b), IQR(b))
+)
+
+print(compare.dt)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Problem 4: Comparing song length distribution
+
+```{r}
+plot1 <- ggplot(billboard.2, aes(x = time_in_min)) +
+  geom_density(aes(fill = ifelse(!is.na(x16th.week), "More than 15 weeks", "Below 15 weeks"),
+                   color = ifelse(!is.na(x16th.week), "More than 15 weeks", "Below 15 weeks")),
+               alpha = 0.7, adjust = 0.7) +
+  labs(x = "Length of the song in minutes", y = "Density", 
+       fill = "", color = "") +
+  scale_fill_manual(values = c("More than 15 weeks" = "skyblue", "Below 15 weeks" = "pink")) +
+  scale_color_manual(values = c("More than 15 weeks" = "blue", "Below 15 weeks" = "red")) +
+  theme_minimal()
+
+qq.df <- as.data.frame(qqplot(a, b, plot.it = FALSE))
+plot2 <-ggplot(qq.df, aes(x = x, y = y)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "black") +
+  labs(x = "Below 15 weeks", y = "More than 15 weeks",
+       title = "QQ Plot: Below 15 weeks vs. More than 15 weeks") +
+  xlim(range(c(a, b))) +
+  ylim(range(c(a, b))) +
+  theme_minimal()
+```
