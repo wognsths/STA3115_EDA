@@ -1,6 +1,6 @@
 ---
 title: "STA3115_homework1"
-author: "Jaehun Shon"
+author: "2021122006 Jaehun Shon"
 date: "2024-09-16"
 output:
   pdf_document: default
@@ -9,15 +9,16 @@ output:
 
 ```{r setup, include=FALSE}
 library(readr);library(tidyverse);library(ggplot2);library(patchwork);library(gridExtra);library(knitr)
-billboard <- read_csv("billboard.csv")
+billboard <- read_csv("billboard.csv",
+                      col_types = cols(time = col_character()))
 billboard
 ```
 
-## Problem 1: Splitting the "time" variable
+# Problem 1: Splitting the "time" variable
 
 ```{r}
 billboard %>% 
-  separate(time, into = c("minutes", "seconds", "mm"), sep = ":") %>% 
+  separate(time, into = c("minutes", "seconds"), sep = ":") %>% 
   .[, c("year", "artist.inverted", "track", "minutes", "seconds")] -> billboard.1
 
 billboard.1 %>%
@@ -26,7 +27,8 @@ billboard.1 %>%
         caption = "Top 10 rows of Billboard Data",
         format = "markdown")
 ```
-## Problem 2: Creating a new time variable and histogram
+
+# Problem 2: Creating a new time variable and histogram
 
 ```{r}
 billboard.1 |> 
@@ -46,12 +48,13 @@ histplot <- ggplot(timevar, aes(x = time_in_min)) +
 table_grob <- tableGrob(description)
 final_plot <- grid.arrange(histplot, table_grob, nrow = 2, heights = c(3/4, 1/4))
 ```
+ The characteristic of distribution is stated in above. The data has right-skewed distribution, which can easily found in histogram.
 
-## Problem 3: Summary statistics by weeks on chart
+# Problem 3: Summary statistics by weeks on chart
 
 ```{r, echo=FALSE}
 billboard %>%
-  separate(time, into = c("minutes", "seconds", "mm"), sep = ":") %>%
+  separate(time, into = c("minutes", "seconds"), sep = ":") %>%
   select(year, artist.inverted, minutes, seconds, x16th.week) %>%
   mutate(time_in_min = as.numeric(minutes) + as.numeric(seconds) / 60) -> billboard.2
 
@@ -70,7 +73,7 @@ compare.dt %>%
         format = "markdown")
 ```
 
-## Problem 4: Comparing song length distribution
+# Problem 4: Comparing song length distribution
 
 ```{r}
 plot1 <- ggplot(billboard.2, aes(x = time_in_min)) +
@@ -79,8 +82,10 @@ plot1 <- ggplot(billboard.2, aes(x = time_in_min)) +
                alpha = 0.7, adjust = 0.7) +
   labs(x = "Length of the song in minutes", y = "Density", 
        fill = "", color = "") +
-  scale_fill_manual(values = c("More than 15 weeks" = "skyblue", "Below 15 weeks" = "pink")) +
-  scale_color_manual(values = c("More than 15 weeks" = "blue", "Below 15 weeks" = "red")) +
+  scale_fill_manual(values = c("More than 15 weeks" = "skyblue",
+                               "Below 15 weeks" = "pink")) +
+  scale_color_manual(values = c("More than 15 weeks" = "blue",
+                                "Below 15 weeks" = "red")) +
   theme_minimal()
 
 
@@ -88,16 +93,21 @@ qq.df <- as.data.frame(qqplot(a, b, plot.it = FALSE))
 plot2 <-ggplot(qq.df, aes(x = x, y = y)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0, color = "black") +
-  labs(x = "Below 15 weeks", y = "More than 15 weeks",
-       title = "QQ Plot: Below 15 weeks vs. More than 15 weeks") +
+  labs(x = "Below 15 weeks", y = "More than 15 weeks") +
   xlim(range(c(a, b))) +
   ylim(range(c(a, b))) +
   theme_minimal()
 
 pp <- plot1 + plot2
+pp
 ```
 
-## Problem 5: Comparing to the Normal distribution
+## Density plot(left), QQ plot(right)
+ 
+1. As density plot shows smooth distribution shape of the data, it is easy to compare between two groups.
+2. I wanted to show the overall shape in easy-to-see way with a density plot, and show how further difference between groups occured with more precise by QQ plot.
+
+# Problem 5: Comparing to the Normal distribution
 
 ```{r}
 qq_plot <- ggplot() +
@@ -106,14 +116,14 @@ qq_plot <- ggplot() +
   stat_qq_line(data = billboard.2 %>% filter(!is.na(x16th.week)),
                aes(sample = time_in_min), linewidth = 0.5) +
   geom_abline(aes(intercept = mean(b), slope = 0), color = 'red', linewidth = 0.1) +
-  labs(x = "theoretical", y = "sample", title = 'Normal qq plot & Histogram (More than 15 weeks)')
+  labs(x = "theoretical", y = "sample", title = 'Normal qq plot')
   
 hist_plot <- ggplot() +
   geom_histogram(data = billboard.2 %>% filter(!is.na(x16th.week)), 
                  aes(x = time_in_min),
                  binwidth = 0.5, fill = "skyblue", color = "blue") +
   coord_flip() +
-  labs(x = "", y = "time in minutes")
+  labs(x = "", y = "time in minutes", title = 'Histogram  (More than 15 weeks)')
 
 qq_plot + hist_plot
 ```
@@ -125,14 +135,17 @@ qq_plot <- ggplot() +
   stat_qq_line(data = billboard.2 %>% filter(is.na(x16th.week)),
                aes(sample = time_in_min), linewidth = 0.5) +
   geom_abline(aes(intercept = mean(a), slope = 0), color = 'red', linewidth = 0.1) +
-  labs(x = "theoretical", y = "sample", title = 'Normal qq plot & Histogram (Below 15 weeks)')
+  labs(x = "theoretical", y = "sample", title = 'Normal qq plot')
   
 hist_plot <- ggplot() +
   geom_histogram(data = billboard.2 %>% filter(!is.na(x16th.week)), 
                  aes(x = time_in_min),
                  binwidth = 0.5, fill = "pink", color = "red") +
   coord_flip() +
-  labs(x = "", y = "time in minutes")
+  labs(x = "", y = "time in minutes", title = "Histogram  (Below 15 weeks)")
 
 qq_plot + hist_plot
 ```
+
+ Distribution of each group shows deviation from the normal distribution when the length of song exceeds approximately 4.5 minutes. The red line represents the mean of the length of song respectively, it shows the average value is deviated from the midpoint of the entire data range.
+ To show the skewedness of data in each group easily, histogram was added next to the QQplot.
