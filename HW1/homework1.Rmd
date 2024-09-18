@@ -16,7 +16,7 @@ billboard
 
 # Problem 1: Splitting the "time" variable
 
-```{r}
+```{r, message=FALSE}
 billboard %>% 
   separate(time, into = c("minutes", "seconds"), sep = ":") %>% 
   .[, c("year", "artist.inverted", "track", "minutes", "seconds")] -> billboard.1
@@ -30,7 +30,7 @@ billboard.1 %>%
 
 # Problem 2: Creating a new time variable and histogram
 
-```{r}
+```{r, message=FALSE}
 billboard.1 |> 
   mutate(time_in_min = as.numeric(minutes) + as.numeric(seconds) / 60) -> timevar
 
@@ -52,7 +52,7 @@ final_plot <- grid.arrange(histplot, table_grob, nrow = 2, heights = c(3/4, 1/4)
 
 # Problem 3: Summary statistics by weeks on chart
 
-```{r, echo=FALSE}
+```{r, message=FALSE}
 billboard %>%
   separate(time, into = c("minutes", "seconds"), sep = ":") %>%
   select(year, artist.inverted, minutes, seconds, x16th.week) %>%
@@ -69,13 +69,13 @@ compare.dt <- tibble(
 
 compare.dt %>%
   kable(col.names = c("Statistic", "Below 15 weeks", "More than 15 weeks"),
-        caption = "Comparison of Statistics for Below 15 weeks and More than 15 weeks",
+        caption = "Comparison of Statistics for Below 15 weeks and More than 15 weeks in song length",
         format = "markdown")
 ```
 
 # Problem 4: Comparing song length distribution
 
-```{r}
+```{r, message=FALSE}
 plot1 <- ggplot(billboard.2, aes(x = time_in_min)) +
   geom_density(aes(fill = ifelse(!is.na(x16th.week), "More than 15 weeks", "Below 15 weeks"),
                    color = ifelse(!is.na(x16th.week), "More than 15 weeks", "Below 15 weeks")),
@@ -109,7 +109,7 @@ pp
 
 # Problem 5: Comparing to the Normal distribution
 
-```{r}
+```{r, message=FALSE}
 qq_plot <- ggplot() +
   stat_qq(data = billboard.2 %>% filter(!is.na(x16th.week)),
           aes(sample = time_in_min)) +
@@ -128,7 +128,7 @@ hist_plot <- ggplot() +
 qq_plot + hist_plot
 ```
 
-```{r}
+```{r, message=FALSE}
 qq_plot <- ggplot() +
   stat_qq(data = billboard.2 %>% filter(is.na(x16th.week)),
           aes(sample = time_in_min)) +
@@ -147,5 +147,5 @@ hist_plot <- ggplot() +
 qq_plot + hist_plot
 ```
 
- Distribution of each group shows deviation from the normal distribution when the length of song exceeds approximately 4.5 minutes. The red line represents the mean of the length of song respectively, it shows the average value is deviated from the midpoint of the entire data range.
- To show the skewedness of data in each group easily, histogram was added next to the QQplot.
+1. Distribution of each group shows deviation from the normal distribution when the length of song exceeds approximately 4.5 minutes. The red line represents the mean of the length of song respectively, it shows the average value is deviated from the midpoint of the entire data range.
+2. To show the skewedness of data in each group easily, histogram was added next to the QQplot. They look quite similar to the plot in Promblem 2, which is right-skewed.
