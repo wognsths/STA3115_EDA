@@ -116,14 +116,14 @@ qq_plot <- ggplot() +
   stat_qq_line(data = billboard.2 %>% filter(!is.na(x16th.week)),
                aes(sample = time_in_min), linewidth = 0.5) +
   geom_abline(aes(intercept = mean(b), slope = 0), color = 'red', linewidth = 0.1) +
-  labs(x = "theoretical", y = "sample", title = 'Normal qq plot')
+  labs(x = "theoretical", y = "sample (time in minutes)", title = 'Normal qq plot')
   
 hist_plot <- ggplot() +
   geom_histogram(data = billboard.2 %>% filter(!is.na(x16th.week)), 
                  aes(x = time_in_min),
                  binwidth = 0.5, fill = "skyblue", color = "blue") +
   coord_flip() +
-  labs(x = "", y = "time in minutes", title = 'Histogram  (More than 15 weeks)')
+  labs(x = "", y = "count", title = 'Histogram  (More than 15 weeks)')
 
 qq_plot + hist_plot
 ```
