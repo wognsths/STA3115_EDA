@@ -18,12 +18,12 @@ billboard
 
 ```{r, message=FALSE}
 billboard %>% 
-  separate(time, into = c("minutes", "seconds"), sep = ":") %>% 
-  .[, c("year", "artist.inverted", "track", "minutes", "seconds")] -> billboard.1
+  separate(time, into = c("minutes", "seconds"), sep = ":", remove = FALSE) %>% 
+  .[, c("year", "artist.inverted", "track", "time", "minutes", "seconds")] -> billboard.1
 
 billboard.1 %>%
   head(10) %>%
-  kable(col.names = c("Year", "Artist", "Track", "Minutes", "Seconds"),
+  kable(col.names = c("Year", "Artist", "Track", "Time", "Minutes", "Seconds"),
         caption = "Top 10 rows of Billboard Data",
         format = "markdown")
 ```
